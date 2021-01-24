@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Transaction{% endblock %}
+
+{% block head %}
+<script src="/static/js/add-transaction.js"></script> 
+<script src="/static/js/utils.js"></script> 
+{% endblock %}
+
+{% block content %} 
+    </br>
+
+    <form class="mx-5" id="form">
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label class="bold" for="transaction-value">Transaction Value</label>
+                    <input type="number" class="form-control" name="amount" 
+                     id="transaction-value" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3">
+                <div class='form-group'>
+                    <label class="bold" for="transaction-date">Transaction Time:</label>
+                    <input type="date" class="form-control" 
+                     name="date" id="transaction-date"> 
+                </div>  
+            </div>        
+        </div>  
+
+        </br>
+        <div class="form-group">
+            <button id="submit" type="button" class="btn btn-primary">Submit</button>
+            <div id="message"></div>
+        </div>
+    </form>
+
+    
+
+{% endblock %}
+

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}My devices{% endblock %}
+
+{% block head %}
+<script src="{% static 'js/my-devices.js' %}"></script>
+<script src="{% static 'js/device-common.js' %}"></script>
+{% endblock %}
+
+{% block content %} 
+<table class="table table-dark bg-info table-bordered" id="my-table"></table>
+{% endblock %}
+
+
+

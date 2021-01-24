@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Payback{% endblock %}
+
+{% block head %}
+<script src="/static/js/utils.js"></script> 
+<script src="/static/js/device-common.js"></script>   
+<script src="/static/js/payback.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> 
+{% endblock %}
+
+{% block content %} 
+</br>
+
+<div class="mx-5">      
+    <form id="form">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class='form-group'>
+                    <label class="bold" for="device-selector">Select device:</label>
+                    <select class="form-control" name="device-id" id="device-selector"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-success" id="apply-btn">Load payback</button>
+            <div id='message' style="color:yellow; display:inline"></div>
+        </div>        
+        {% if not power_cost_specified %} 
+        You did not specify power cost, using value 0
+        (Set power cost: Manage -> Maintenance).
+        {% endif %}
+    </form>
+
+
+    <canvas id="payback-chart"></canvas>
+</div>
+    
+
+{% endblock %}
+

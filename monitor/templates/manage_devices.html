@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage devices{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'styles/manage-devices.css' %}">
+<script src="{% static 'js/device-common.js' %}"></script>        
+<script src="{% static 'js/manage-devices.js' %}"></script> 
+<script src="{% static 'js/utils.js' %}"></script> 
+{% endblock %}
+
+{% block content %}      
+</br>
+
+<form class="mx-5" id="form">
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="bold" for="device-selector">Select device:</label>
+                <select class="form-control" name="device_id" id="device-selector"></select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="bold" for="manage-options">Choose what to do:</label>
+                <select class="form-control" name="manage_option" id="manage-options">
+                    <option value="set iddle time">Set iddle time</option>
+                    <option value="set active time">Set active time</option>
+                    <option value="sell">Sell</option>
+                    <option value="add expenses">Add expenses</option>
+                    <option value="activate">Activate</option>
+                    <option value="deactivate">Deactivate</option>
+                </select>   
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-3">
+            <div class='form-group on-sell-show'>
+                <label class="bold" for="sell-price">Sell price:</label>
+                <input type="number" class="form-control" name="sell_price" id="sell-price"> 
+            </div>  
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-3">
+            <div class='form-group on-add-expenses-show'>
+                <label class="bold" for="expenses">Expenses:</label>
+                <input type="number" class="form-control" name="expenses" id="expenses"> 
+            </div>  
+        </div>
+</div>
+
+    <div class="on-set-time-show">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label class="bold" for="time-start">Start time:</label>
+                    <input type="datetime-local" class="form-control"
+                     name="time_start" id="time-start"> 
+                </div>  
+            </div>        
+        </div>  
+        <div class="row">
+            <div class="col-sm-3">
+                <div class='form-group'>
+                    <label class="bold" for="time-end">End time:</label>
+                    <input type="datetime-local" class="form-control" 
+                     name="time_end" id="time-end"> 
+                </div>  
+            </div>        
+        </div>    
+    </div>
+
+    <div class="form-group">
+        <button type="button" class="btn btn-success" id="apply-btn">Apply</button>
+        <div id='message' style="color:yellow; display:inline"></div>
+    </div>
+</form>
+
+{% endblock %}
+
