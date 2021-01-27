@@ -5,3 +5,4 @@ psycopg2==2.8.6
 pytz==2020.5
 rope==0.18.0
 sqlparse==0.4.1
+whitenoise==5.2.0

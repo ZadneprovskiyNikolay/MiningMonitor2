@@ -1,4 +1,5 @@
 from .models import Device, DeviceUsage, PowerCost
+from .utils import device_has_unclosed_usage
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -8,22 +9,22 @@ from datetime import datetime, date, time, timedelta
 
 logger = logging.getLogger(__name__)
 
-def add_usage(device, time_range: Iterable[datetime] = None):        
+def add_usage(device, time_range=None):  
+    usage_id = None
+          
     if time_range is None:         
         # Open new usage with start_time = now
         start_time = datetime.now()              
 
         if device_has_unclosed_usage(device):            
             raise Exception('Can not add new device usage for device_id = {} '\
-                            'while previous one is nomodels.DateField(),  closed'.format(device.device_id))        
+                            'while previous one is not closed'.format(device.device_id))        
 
         # Open new usage            
         usage_id = DeviceUsage.objects.create(device=device, start_time=start_time).device_usage_id
         # Set last_device_usage for current device
         device.last_device_usage=usage_id
-        device.save()
-
-        return True        
+        device.save()               
     else:              
         start_time, end_time = time_range
 
@@ -59,12 +60,21 @@ def add_usage(device, time_range: Iterable[datetime] = None):
             pass      
         
         # Add usage
-        DeviceUsage.objects.create(device=device, 
-            start_time=start_time, end_time=end_time)       
+        usage_id = DeviceUsage.objects.create(device=device, 
+            start_time=start_time, end_time=end_time)   
+
+    return usage_id
+           
 
 def close_last_device_usage(device):     
-    device.end_time=datetime.now()
-    device.save()
+    last_usage_id = device.last_device_usage
+    if last_usage_id is not None:
+        try: 
+            usage = DeviceUsage.objects.get(pk=last_usage_id)
+        except Deviceusage.DoesNotExist: 
+            return
+        usage.end_time=datetime.now()
+        usage.save()
 
 def add_iddle_time(device, iddle_start, iddle_end):                    
     try: 

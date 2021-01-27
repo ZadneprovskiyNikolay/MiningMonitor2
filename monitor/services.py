@@ -1,5 +1,5 @@
 from .models import Device, DeviceUsage, Transaction, PowerCost
-from .utils import close_usages
+from .utils import close_usages, has_power_cost
 
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.models import Q
@@ -48,9 +48,6 @@ def get_work_archive(device_id):
             work_day_start = work_day_end 
 
     return res_dict                 
-
-def has_power_cost(user_id): 
-    return PowerCost.objects.filter(user_id=user_id).exists()
 
 def calc_payback(user_id): 
     """Returns: device payback dict, no entries for devices that was not used yet.
@@ -167,35 +164,3 @@ def get_usages(devices_id: Iterable[int] = None, user_id=None,
     
     return res_dict            
 
-def check_ownership(user_id, device_id):
-    return Device.objects.filter(user_id=user_id, device_id=device_id).exists()
-
-def add_transaction(user, trans_details):
-    Transaction.objects.create(user=user, **trans_details)   
-
-def transactions(user_id) -> tuple[tuple[datetime.date, float]]: 
-    transactions = Transaction.objects.filter(user_id=user_id).order_by('-date')
-    date_amount_pairs = tuple(transaction.date_amount() for transaction in transactions)
-    return date_amount_pairs 
-
-def set_maintenance_cost(user, maintenance_settings): 
-    change = maintenance_settings['maintenance_option']
-    value = maintenance_settings['value']  
-    
-    if change == 'electricity':
-        today_date = date.today()
-        value = float(value) / 1000 # $/KW/H -> $/W/H            
-        fields = { 
-            'user': user, 
-            'cost_per_watH': value, 
-            'start_date': today_date
-        }
-
-        if PowerCost.objects.filter(user=user).exists():            
-            PowerCost.objects.filter(user=user).update(end_date=today_date)
-
-        PowerCost.objects.create(**fields)
-    else: 
-        return False
-
-    return True

@@ -31,13 +31,6 @@ def add_device(user, device_details) -> bool:
     
     return True
 
-def device_has_unclosed_usage(device): 
-    last_usage_id = Device.objects.get(pk=device.device_id).last_device_usage
-    if not last_usage_id:
-        return False
-
-    return bool(DeviceUsage.objects.get(pk=device.device_id).end_time)
-
 def get_devices(user_id, archive: bool): 
     if archive:            
             ret_columns = 'device_id', 'device_name', 'expenses', 'revenue', 'buy_price', 'sell_price'
@@ -57,12 +50,14 @@ def sell_device(device, sell_price):
 
 def set_device_state(device, active: bool):         
     """Change device state and open/close usage""" 
-    device.is_active=active
-    device.save()
+    device.is_active = active
     if active:
-        add_usage(device)
+        usage_id = add_usage(device)        
+        device.last_device_usage = usage_id
     else:
         close_last_device_usage(device) 
+
+    device.save()
 
 def add_expenses(device, expenses):     
     device.expenses += expenses

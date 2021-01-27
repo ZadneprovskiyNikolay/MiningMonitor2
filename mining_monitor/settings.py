@@ -26,9 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'wt)(q7rpkx#x8ry7sc!4oq&0%$*cm#rsgzsh!k9+#ejsf#a&2&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG_VALUE'))
+DEBUG = bool(int(os.environ.get('DEBUG_VALUE', False)))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost', 
+    'mining-monitor-tools.herokuapp.com',
+]
 
 # Application definition
 
@@ -50,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'mining_monitor.urls'
@@ -78,18 +82,30 @@ WSGI_APPLICATION = 'mining_monitor.wsgi.application'
 
 # Database
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'mining_monitor',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-        'ATOMIC_REQUESTS': True,
+if DEBUG: 
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'mining_monitor',
+            'USER': 'admin',
+            'PASSWORD': 'admin',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+            'ATOMIC_REQUESTS': True,
+        }
     }
-}
-
+else: 
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'd9rh7aab56vd93',
+            'USER': 'xwsngbelbzfejy',
+            'PASSWORD': 'fac9debf3791bacc0cfd3dfbd61d3884dc7b9625d2726dbf7cf7a2c18d64b378',
+            'HOST': 'ec2-54-157-66-140.compute-1.amazonaws.com',
+            'PORT': '5432',
+            'ATOMIC_REQUESTS': True,
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -130,8 +146,10 @@ USE_L10N = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    BASE_DIR / 'monitor' / 'static',    
 ]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Settings
 
