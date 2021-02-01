@@ -25,11 +25,11 @@ def add_device(user, device_details) -> bool:
         
     if is_active: 
         # Add new usage starting from now
-        usage_id = add_usage(new_device)        
+        usage_id = add_usage(new_device).device_usage_id        
         new_device.last_device_usage = usage_id
         new_device.save()
     
-    return True
+    return new_device
 
 def get_devices(user_id, archive: bool): 
     if archive:            
@@ -52,7 +52,7 @@ def set_device_state(device, active: bool):
     """Change device state and open/close usage""" 
     device.is_active = active
     if active:
-        usage_id = add_usage(device)        
+        usage_id = add_usage(device).device_usage_id        
         device.last_device_usage = usage_id
     else:
         close_last_device_usage(device) 

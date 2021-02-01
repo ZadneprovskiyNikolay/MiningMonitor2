@@ -10,8 +10,11 @@ from datetime import datetime, date, time, timedelta
 logger = logging.getLogger(__name__)
 
 def add_usage(device, time_range=None):  
-    usage_id = None
-          
+    """Add new usage and concatenate with others if overlapping,
+    updates last_device_usage field of 'device' with new usage id if it's
+    'start_time' is the most resent""" 
+    usage = None
+
     if time_range is None:         
         # Open new usage with start_time = now
         start_time = datetime.now()              
@@ -21,11 +24,11 @@ def add_usage(device, time_range=None):
                             'while previous one is not closed'.format(device.device_id))        
 
         # Open new usage            
-        usage_id = DeviceUsage.objects.create(device=device, start_time=start_time).device_usage_id
+        usage = DeviceUsage.objects.create(device=device, start_time=start_time)
         # Set last_device_usage for current device
-        device.last_device_usage=usage_id
+        device.last_device_usage=usage.device_usage_id
         device.save()               
-    else:              
+    else:         
         start_time, end_time = time_range
 
         # Don't do anything if usage in range (start_time, end_time) exists
@@ -34,7 +37,7 @@ def add_usage(device, time_range=None):
             end_time__gte=end_time).exists():                                 
             return
 
-        # Delete all usages in range (start_time, end_time)            
+        # Delete all usages that are fully in range (start_time, end_time)            
         DeviceUsage.objects.filter(device=device, 
             start_time__gte=start_time, 
             end_time__lte=end_time).delete()
@@ -45,25 +48,30 @@ def add_usage(device, time_range=None):
             usage_overlapping_start = DeviceUsage.objects.get(device=device, 
                 end_time__gte=start_time, 
                 end_time__lte=end_time)
-            start_time = usage_overlapping_start.start_time 
+            start_time = usage_overlapping_start.start_time             
             usage_overlapping_start.delete()
         except ObjectDoesNotExist:
             pass        
 
-        try:
+        try:            
             usage_overlapping_end = DeviceUsage.objects.get(device=device, 
                 start_time__gte=start_time, 
                 start_time__lte=end_time)
-            end_time = usage_overlapping_end.start_time            
+            end_time = usage_overlapping_end.end_time                        
             usage_overlapping_end.delete()
         except ObjectDoesNotExist:
             pass      
         
         # Add usage
-        usage_id = DeviceUsage.objects.create(device=device, 
-            start_time=start_time, end_time=end_time)   
+        usage = DeviceUsage.objects.create(device=device, 
+            start_time=start_time, end_time=end_time)  
 
-    return usage_id
+        # Udate 'last_device_usage' if new usage is the most recent
+        if not DeviceUsage.objects.filter(start_time__gt=start_time).exists(): 
+            device.last_device_usage=usage.device_usage_id
+            device.save()
+
+    return usage
            
 
 def close_last_device_usage(device):     

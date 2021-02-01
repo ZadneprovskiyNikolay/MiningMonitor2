@@ -27,7 +27,10 @@ class DeviceUsage(models.Model):
     end_time = models.DateTimeField(null=True)
 
     class Meta:
-        db_table = 'device_usage'
+        db_table = 'device_usage'        
+
+    def __str__(self): 
+        return f'({self.start_time}, {self.end_time})'
 
     def usage_range(self): 
         return self.start_time, self.end_time
