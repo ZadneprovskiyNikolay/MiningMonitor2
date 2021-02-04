@@ -1,12 +1,18 @@
 var workArchiveChart = null;
-var devices = null;
+var global_devices = [];
 
 $(function() {    
-    // load devices and fill device selector
-    loadDevicesPromise('my_devices.json', false).then(function(dv) {
-        devices = dv;
-        loadMyDevicesSelector(dv);
-    });     
+    // Load devices and fill device selector
+    global_devices = [];
+    Promise.all([
+        loadDevicesPromise('my_devices.json', false), 
+        loadDevicesPromise('archive_devices.json', true)
+    ]).then(function(values) {
+        for (devices_returned of values) {
+            global_devices.push.apply(global_devices, devices_returned);
+        }
+        loadMyDevicesSelector(global_devices);
+    })
 
     $('#apply-btn').click(function(e) {
         e.preventDefault();
@@ -18,8 +24,10 @@ $(function() {
             return;
         }
         
-        loadPaybackChartPromise(deviceId).catch(function() {
-            console.error('Error loading payback: ' + error);            
+        loadPaybackChartPromise(deviceId).then(function() { 
+            printMessage('');
+        })
+        .catch(function(error) {
             printMessage('Can not load payback chart');
         });
     })
@@ -75,11 +83,18 @@ function drowPaybackChart(data) {
                 text:    "Payback Chart", 
                 fontColor: 'white'
             },
+            legend: {
+                display: false
+            },
             scales:     {
                 xAxes: [{
                     type: "time",
                     time: {
-                        format: timeFormat,                        
+                        format: timeFormat,  
+                        displayFormats: {
+                            'day': 'MMM D',                            
+                            'hour': 'MMM D'
+                        }                      
                     },
                     scaleLabel: {
                         display: true,
@@ -115,11 +130,4 @@ function drowPaybackChart(data) {
     var ctx = document.getElementById("payback-chart").getContext("2d");    
     workArchiveChart = new Chart(ctx, config);
 }
-
-function loadMyDevices() {
-    loadDevicesPromise('my_devices.json', false).then(function(dv) {
-        devices = dv;
-    });    
-}
-
 

@@ -1,6 +1,6 @@
 var workData = null;
 var workArchiveChart = null;
-var devices = null;
+var global_devices = null;
 
 $(function() {
     // Load devices and fill device selector
@@ -58,7 +58,7 @@ function ShowDayChart(year, month) {
         data = Array(labels.length).fill(0);
     } else {
         for (x of labels) { 
-            value = workData[year][month][x-1];            
+            value = workData[year][month][x];            
             if (!value) { 
                 value = 0;
             }
@@ -94,11 +94,10 @@ function DrowWorkChart(data, labels) {
     chart_data = {
         labels: labels, 
         datasets: [
-            {
-                label: '% of period worked',                
+            {                            
                 backgroundColor: 'white',                
-                data: data
-            }
+                data: data,
+            }           
         ]
     }
 
@@ -112,15 +111,34 @@ function DrowWorkChart(data, labels) {
                 text:    "Work Chart", 
                 fontColor: 'white'
             },
+            legend: {
+                display: false
+            },
             scales: {
                 yAxes: [{
-                    ticks: {
+                    scaleLabel: {
+                        display: true,
+                        labelString: '% of period worked',
+                        fontColor: 'black' 
+                    },
+                    ticks: {                
+                        fontColor: "white",        
+                        beginAtZero: true                
+                    }
+                }], 
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'date',
+                        fontColor: 'black' 
+                    },
+                    ticks: {                
+                        fontColor: "white",        
                         beginAtZero: true                
                     }
                 }]
             }
-            // ,maintainAspectRatio: false
-        }
+        },                
     };
 
     // Update chart if it's already drown

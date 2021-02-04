@@ -7,7 +7,7 @@ urlpatterns = [
     path('add-device/', views.add_device),    
     path('my-devices/', views.my_devices),    
     path('devices/my_devices.json', views.my_devices_json), 
-    path('add-transaction/', views.add_transaction),     
+    path('add-transaction/', views.add_transaction_view),     
     path('maintenance/', views.maintenance),   
     path('manage-devices/', views.manage_devices),
     path('work-archive/', views.work_archive),

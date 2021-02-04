@@ -2,7 +2,7 @@ from . import device_utils
 from .models import Device
 from .services import get_work_archive, calc_payback
 from .utils import converter_json, ownership_required, has_power_cost, \
-    add_transaction, set_maintenance_cost, transactions
+    add_transaction, set_maintenance_cost, get_transactions
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
@@ -53,7 +53,7 @@ def my_devices_json(request):
 
 @login_required
 @require_http_methods(['GET', 'POST'])
-def add_transaction(request):
+def add_transaction_view(request):
     if request.method == 'GET': 
         return render(request, 'add_transaction.html')
     elif request.method == 'POST': 
@@ -139,6 +139,6 @@ def transactions(request):
 @login_required
 @require_http_methods(['GET'])
 def transactions_json(request):      
-    transactions = transactions(user_id=request.user.id)
+    transactions = get_transactions(user_id=request.user.id)
     transactions_json = json.dumps(transactions, default=converter_json)    
     return HttpResponse(transactions_json, content_type='application/json')

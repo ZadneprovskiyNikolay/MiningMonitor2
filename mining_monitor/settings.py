@@ -98,10 +98,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'd9rh7aab56vd93',
-            'USER': 'xwsngbelbzfejy',
-            'PASSWORD': 'fac9debf3791bacc0cfd3dfbd61d3884dc7b9625d2726dbf7cf7a2c18d64b378',
-            'HOST': 'ec2-54-157-66-140.compute-1.amazonaws.com',
+            'NAME': os.environ['DB_NAME'],
+            'USER': os.environ['DB_USER'],
+            'PASSWORD': os.environ['DB_PASSWORD'],
+            'HOST': os.environ['DB_HOST'],
             'PORT': '5432',
             'ATOMIC_REQUESTS': True,
         }

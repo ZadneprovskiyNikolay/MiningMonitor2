@@ -1,11 +1,11 @@
-var devices = null;
+var global_devices = null;
 
 window.addEventListener('DOMContentLoaded', onload);
 
 function onload() {                 
     // load devices and fill device selector
     loadDevicesPromise('my_devices.json', false).then(function(dv) {
-        devices = dv;
+        global_devices = dv;
         loadMyDevicesSelector(dv);
     });    
     
@@ -45,7 +45,7 @@ function applyChange() {
         async: true
     }).done(function(response) { 
         if (response['success']) {
-            printMessage('Apply success');
+            printMessage('Applied change successfuly');
         } else { 
             printMessage('Could not apply this change');    
         }
@@ -87,10 +87,10 @@ function check_change_params(obj) {
 }
 
 function getDevice(deviceId) {    
-    if (!devices) return null;
+    if (!global_devices) return null;
 
-    for (let x = 0; x < devices.length; ++x) {
-        let devicex = devices[x];
+    for (let x = 0; x < global_devices.length; ++x) {
+        let devicex = global_devices[x];
         if (devicex.deviceId == deviceId) {
             return devicex;
         }

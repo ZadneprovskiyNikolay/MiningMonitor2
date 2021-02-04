@@ -2,7 +2,7 @@ from .models import Device, DeviceUsage, Transaction, PowerCost
 from .utils import close_usages, has_power_cost
 
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.db.models import Q
+from django.db.models import Q, Min
 
 import logging 
 from collections.abc import Iterable
@@ -21,7 +21,7 @@ def get_work_archive(device_id):
 
     # Get usages sorted from the oldest to newest and set 
     # 'end_time' where it's None        
-    usage_set = DeviceUsage.objects.filter(device_id=device_id).order_by('start_time')        
+    usage_set = DeviceUsage.objects.filter(device_id=device_id).order_by('start_time')      
     if not usage_set: 
         return {}
     close_usages(usage_set)
@@ -68,32 +68,35 @@ def calc_payback(user_id):
     if not transactions or not devices_dict: 
         return {} 
     
-    # usage_dict = {device_id: ( (usage_start, usage_end), ...), ...}
-    usage_dict = get_usages(devices_id=devices_id, set_usage_end=True)    
-
     # Load power cost
     power_cost = 0
     if has_power_cost(user_id): 
         power_cost = PowerCost.objects.get(user_id=user_id, end_date=None).cost_per_watH        
     
+    # Start of exploitetion
+    # devices_exp_start = { {device_id: 1, exp_start: datetime.datetiem(2020, 1, 1, 0, 0)}, ...}
+    devices_exp_start = DeviceUsage.objects.values('device_id').annotate(exp_start=Min('start_time'))
+
     result_dict = {}                                  
     # Set first value(start_date, 0%) for every device in res_dict                      
-    for device_id in usage_dict:
-        usage_start_date = min( (start_time for start_time, period_end in usage_dict[device_id]) ) 
-        usage_start_date = usage_start_date.date() # Convert datetime to date
-        result_dict[device_id] = [(usage_start_date, 0)]
+    for device_exp_start in devices_exp_start:        
+        device_id = device_exp_start['device_id']
+        usage_start_date = device_exp_start['exp_start'].date() # Convert datetime to date
+        result_dict[device_id] = [(usage_start_date, 0)]    
     
     # Main loop over all periods between transactions for 
     # devices that was active: relative contribution -> absolute pofit -> new payback % 
-    period_start = datetime.min.now() 
+    period_start = datetime.min
     for trans in transactions:        
         period_end = datetime.combine(trans.date, datetime.min.time()) # Convert date to datetime
+        logger.debug(f'considering period between transactions: ({period_start}, {period_end})')
 
         # All usages from period 
         period_usage_dict = get_usages(user_id=user_id, start_time=period_start, 
-            end_time=period_end, set_usage_end=True)        
-                                                    
-        #  Get usage hours for every device in period and set its contribution(usage_hours *  hashrate)
+            end_time=period_end, set_usage_end=True)    
+        logger.debug(f'all usages from period: {period_usage_dict}')    
+
+        #  Get usage hours for every device in period and set its contribution(usage_hours * hashrate)
         usage_hours_dict = {}
         contrib_dict = {} # Contribution of devices                    
         for device_id in period_usage_dict:                
@@ -131,9 +134,9 @@ def get_usages(devices_id: Iterable[int] = None, user_id=None,
         for all user_id devices touching range (start_time, end_time). If set_usage_end=True
         then usages with end_time=None are set to end_time=datetime.now()
         {device_id: ( (start_time, end_time), ...)}
-    """              
+    """                      
     res_dict = {}    
-
+    
     if devices_id is None:         
         # Devices of user_id
         devices_id = tuple(Device.objects.values_list('device_id', flat=True).filter(user_id=user_id))        
@@ -152,9 +155,9 @@ def get_usages(devices_id: Iterable[int] = None, user_id=None,
         for device_id in devices_id: 
             usages = DeviceUsage.objects.filter(
                 Q(device_id=device_id),
-                Q(
+                Q(  Q( Q(end_time__isnull=True) & Q(start_time__lt=end_time)) |
                     Q( Q(start_time__lte=start_time) & Q(end_time__gt=start_time) ) |
-                    Q( Q(start_time__lte=end_time) & Q(end_time__gt=end_time) )
+                    Q( Q(start_time__lt=end_time) & Q(end_time__gt=end_time) )  
                 )).order_by('start_time')
             if not usages: 
                 continue

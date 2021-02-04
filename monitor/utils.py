@@ -1,4 +1,4 @@
-from .models import Device, DeviceUsage, PowerCost
+from .models import Device, DeviceUsage, PowerCost, Transaction
 
 from django.http import HttpResponseForbidden
 
@@ -69,7 +69,7 @@ def check_ownership(user_id, device_id):
 def add_transaction(user, trans_details):
     Transaction.objects.create(user=user, **trans_details)   
 
-def transactions(user_id) -> tuple[tuple[datetime.date, float]]: 
+def get_transactions(user_id) -> tuple[tuple[datetime.date, float]]: 
     transactions = Transaction.objects.filter(user_id=user_id).order_by('-date')
     date_amount_pairs = tuple(transaction.date_amount() for transaction in transactions)
     return date_amount_pairs 
