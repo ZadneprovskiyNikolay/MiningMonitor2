@@ -89,12 +89,10 @@ def calc_payback(user_id):
     period_start = datetime.min
     for trans in transactions:        
         period_end = datetime.combine(trans.date, datetime.min.time()) # Convert date to datetime
-        logger.debug(f'considering period between transactions: ({period_start}, {period_end})')
 
         # All usages from period 
         period_usage_dict = get_usages(user_id=user_id, start_time=period_start, 
             end_time=period_end, set_usage_end=True)    
-        logger.debug(f'all usages from period: {period_usage_dict}')    
 
         #  Get usage hours for every device in period and set its contribution(usage_hours * hashrate)
         usage_hours_dict = {}

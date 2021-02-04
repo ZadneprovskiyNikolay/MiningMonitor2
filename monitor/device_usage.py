@@ -71,8 +71,7 @@ def add_usage(device, time_range=None):
             device.last_device_usage=usage.device_usage_id
             device.save()
 
-    return usage
-           
+    return usage           
 
 def close_last_device_usage(device):     
     last_usage_id = device.last_device_usage
