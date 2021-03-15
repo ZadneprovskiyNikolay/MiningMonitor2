@@ -24,7 +24,10 @@ $(function() {
             return;
         }
         
-        loadPaybackChartPromise(deviceId).catch(function(error) {
+        loadPaybackChartPromise(deviceId).then(function() { 
+            printMessage('');
+        })
+        .catch(function(error) {
             printMessage('Can not load payback chart');
         });
     })
