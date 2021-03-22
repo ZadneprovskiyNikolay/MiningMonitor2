@@ -1,18 +1,13 @@
-var global_devices = null;
-
 window.addEventListener('DOMContentLoaded', onload);
 
 function onload() {                 
-    // load devices and fill device selector
-    loadDevicesPromise('my_devices.json', false).then(function(dv) {
-        global_devices = dv;
-        loadMyDevicesSelector(dv);
-    });    
+    updateDeviceSelector(nonarchive=true);
+    loadCurrentDevices();      
     
     $("#manage-options").change(onManageOptionChange);  
     onManageOptionChange();    
     
-    // set max time-end to current time
+    // Set max time-end to current time
     var max_time = new Date().toISOString().split('Z')[0]; 
     document.getElementById('time-end').max = max_time;      
     document.getElementById('time-start').max = max_time;      
@@ -49,23 +44,25 @@ function applyChange() {
         } else { 
             printMessage('Could not apply this change');    
         }
-        loadMyDevices();
+        updateDeviceSelector(nonarchive=true);
     }).fail(function() {
         printMessage('Could not apply this change');    
     });
 }
 
-function check_change_params(obj) { 
-    var device = getDevice(obj['device_id']);           
+function check_change_params(obj) {  
+    console.log(`deviceId: ${obj['device_id']}`);   
+    var device = global_current_devices[obj['device_id']];
     var change = obj['manage_option'];    
     var sellPrice = obj['sell_price'];
     var expenses = obj['expenses'];
     var time_start = obj['time_start']    
     var time_end = obj['time_end']    
-    var isActive = device.is_active;    
+    var isActive = device['isActive'];    
+    console.log(`isActive: ${isActive}`);
 
     errMsg = ''
-    if (!change || !device) { 
+    if (!change) { 
         errMsg = 'Can\'t apply this chage';
     } else if (change == 'activate' && isActive) {
         errMsg = 'Device is already active';               
@@ -87,10 +84,10 @@ function check_change_params(obj) {
 }
 
 function getDevice(deviceId) {    
-    if (!global_devices) return null;
+    if (!global_current_devices) return null;
 
-    for (let x = 0; x < global_devices.length; ++x) {
-        let devicex = global_devices[x];
+    for (let x = 0; x < global_current_devices.length; ++x) {
+        let devicex = global_current_devices[x];
         if (devicex.deviceId == deviceId) {
             return devicex;
         }

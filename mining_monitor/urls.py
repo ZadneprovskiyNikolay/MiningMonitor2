@@ -20,6 +20,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 urlpatterns = [
     path('', include('monitor.urls'), name='home'),
     path('admin/', admin.site.urls),    
+    path('graphql/', include('monitor.urls')),
     path('accounts/login/', LoginView.as_view(), name='login'),
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
     path('add-device/', include('monitor.urls'), name='add device'),

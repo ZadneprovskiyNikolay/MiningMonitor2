@@ -1,7 +1,7 @@
 window.addEventListener('DOMContentLoaded', onload);
 
 function onload() {    
-    loadDevicesPromise('archive_devices.json', true)
+    loadDevicesPromise(archiveDeviceFields, true)
     .then(fillDevicesTable)
     .catch(function() {});  
 }

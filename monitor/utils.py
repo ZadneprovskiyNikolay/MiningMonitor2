@@ -53,7 +53,7 @@ def ownership_required(methods=[]):
         return _wrapped_view
     return decorator
 
-def device_has_unclosed_usage(device): 
+def device_has_unclosed_usage(device):  
     last_usage_id = Device.objects.get(pk=device.device_id).last_device_usage
     if not last_usage_id:
         return False

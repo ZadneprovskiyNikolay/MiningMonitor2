@@ -1,19 +1,8 @@
 var workData = null;
 var workArchiveChart = null;
-var global_devices = null;
 
 $(function() {
-    // Load devices and fill device selector
-    loadDevicesPromise('my_devices.json', false)    
-    .then(loadMyDevicesSelector)
-    .catch(function(error) { 
-        console.log('Could not load current devices')
-    })
-    loadDevicesPromise('archive_devices.json', true)
-    .then(loadMyDevicesSelector)
-    .catch(function(error) { 
-        console.log('Could not load archive devices')
-    })
+    updateDeviceSelector(archive=true, nonarchive=true);
 
     // Set default date to now
     var month_element = document.querySelector('input[type="month"]');

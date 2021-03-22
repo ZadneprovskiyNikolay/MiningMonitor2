@@ -34,7 +34,3 @@ function submitFun() {
         printMessage('Could not add transaction.');            
     })
 }
-
-
-
-

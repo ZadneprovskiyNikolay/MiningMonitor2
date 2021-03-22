@@ -109,7 +109,7 @@ def archive_devices(request):
 @login_required
 @require_http_methods(['GET'])
 def archive_devices_json(request): 
-    devices = list(device_utils.get_devices(request.user.id, archive=True))
+    devices = list(device_utils.get_devices(request.user.id, archive=True))    
     devices_serialized = json.dumps(devices)
     return HttpResponse(devices_serialized, content_type='application/json')
 

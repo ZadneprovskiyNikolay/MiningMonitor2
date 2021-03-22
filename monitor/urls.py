@@ -1,9 +1,12 @@
 from django.urls import path
+from graphene_django.views import GraphQLView
+from monitor.schema import schema
 
 from . import views
 
 urlpatterns = [ 
     path('', views.index),
+    path('graphql', GraphQLView.as_view(graphiql=True, schema=schema)),
     path('add-device/', views.add_device),    
     path('my-devices/', views.my_devices),    
     path('devices/my_devices.json', views.my_devices_json), 

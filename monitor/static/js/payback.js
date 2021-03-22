@@ -1,18 +1,7 @@
 var workArchiveChart = null;
-var global_devices = [];
 
 $(function() {    
-    // Load devices and fill device selector
-    global_devices = [];
-    Promise.all([
-        loadDevicesPromise('my_devices.json', false), 
-        loadDevicesPromise('archive_devices.json', true)
-    ]).then(function(values) {
-        for (devices_returned of values) {
-            global_devices.push.apply(global_devices, devices_returned);
-        }
-        loadMyDevicesSelector(global_devices);
-    })
+    updateDeviceSelector(archive=true, nonarchive=true);
 
     $('#apply-btn').click(function(e) {
         e.preventDefault();

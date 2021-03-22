@@ -4,9 +4,7 @@ window.addEventListener('DOMContentLoaded', function() {
         clearInput(['device-name', 'device-price', 'power-consumption', 
             'additional-expenses', 'mining-rate', 'hashrate-unit-options',
             'is-active']);
-    }
-
-    
+    }    
 })
 
 function addDevice() {

@@ -1,56 +1,65 @@
-class Device { 
-    constructor(db_row, archive) {
-        this.archive = archive
-        this.deviceId = db_row[0]; 
-        this.device_name = db_row[1]; 
-        this.expenses = db_row[2];
-        this.revenue = db_row[3];
-        this.buy_price = db_row[4];    
-        if (archive) {
-            this.sell_price = db_row[5]                        
-        } else {
-            this.is_active = db_row[5]
-        }
-    }    
+var global_current_devices = {};
 
-    toTableRow(active) {
-        var device_name = String(this.device_name) + '(' + this.deviceId + ')'
-        var row = [
-            device_name,
-            this.expenses, 
-            this.revenue, 
-            this.buy_price
-        ]        
-        if (this.archive) {
-            row.push(this.sell_price)
-        } else {
-            row.push(this.is_active)
-        }
+currentDeviceFields = [
+    'deviceId', 'deviceName', 'expenses', 
+    'revenue', 'buyPrice', 'isActive'
+]
+archiveDeviceFields = [
+    'deviceId', 'deviceName', 'expenses', 
+    'revenue', 'buyPrice', 'sellPrice'
+]
 
-        return row;
+function deviceToTableRow(device) {
+    var device_name = `${device['deviceName']}(${device['deviceId']})`;
+    var row = [
+        device_name,
+        device['expenses'], 
+        device['revenue'], 
+        device['buyPrice']
+    ]        
+    if (Boolean(device['archive'])) {
+        row.push(device['sell_price']);
+    } else {
+        row.push(device['is_active']);
     }
+    return row;
 }
 
-function loadDevicesPromise(file_name, archive) {  
-    return new Promise(function (resolve, reject) {
-        $.getJSON('/devices/' + file_name).done(function(data, textStatus, jqXHR) { 
-            devices = []      
-            for (device_data of data) {
-                devices.push(new Device(device_data, archive));
-            }    
-            resolve(devices);
-        }).fail(function(jqxhr, textStatus, error) {
+function loadDevicesPromise(fields, archive) {    
+    return new Promise(function(resolve, reject) { 
+        var query = { query: `
+            query {
+                devices(archive: ${archive}) {    
+                    ${fields.join('\n')}
+                }
+            }
+        `};
+
+        fetch('/graphql', { 
+            method: 'POST', 
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Accept': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'), 
+            }, 
+            body: JSON.stringify(query), 
+        })
+        .then(r => r.json())
+        .then(r => {            
+            resolve(r['data']['devices']); 
+        })        
+        .catch(error => { 
             console.error('Error loading devices: ' + error);
             reject();
-        });
-    })        
+        })        
+    })    
 }    
 
 function fillDevicesTable(devices) { 
     if (devices.length == 0) {
         return;   
     }
-    var archive = devices[0].archive
+    var archive = devices[0]['archive'];
     var tableElement = document.getElementById('my-table');        
 
     generateTableHead(tableElement, archive);
@@ -58,7 +67,7 @@ function fillDevicesTable(devices) {
 }
 
 function generateTableHead(table, archive, rowId='table-header') {    
-    var header = null
+    var header = null;
     if (archive)
         header = ['Device name', 'Expenses', 'Revenue', 'Buy price', 'Sell price']
     else
@@ -76,11 +85,11 @@ function generateTableHead(table, archive, rowId='table-header') {
     }
   }
 
-function generateTableBody(table, devices) {    
-    var body = table.create
+function generateTableBody(table, devices) {
+    var body = table.create;
     for (device of devices) {              
         var row = table.insertRow();
-        row_data = device.toTableRow();
+        row_data = deviceToTableRow(device);
 
         for (value of row_data) {
             var cell = row.insertCell();
@@ -90,20 +99,42 @@ function generateTableBody(table, devices) {
     }
 }
 
-function loadMyDevices() {
-    loadDevicesPromise('my_devices.json', false).then(function(dv) {
-        devices = dv;
+function loadCurrentDevices() {
+    global_current_devices = {};
+    loadDevicesPromise(currentDeviceFields, false)
+    .then(devices => {
+        for (device of devices) {             
+            global_current_devices[device['deviceId']] = device;
+        }                
     });    
+    
 }
 
-function loadMyDevicesSelector(devices) {        
-    selector = document.getElementById('device-selector');
+function updateDeviceSelector(archive = false, nonarchvie = false) {        
+    // Load selector from archive and/or nonarchive devices
 
-    for (device of devices) {
-        var option_text = String(device.device_name) + '(' + device.deviceId + ')';
-        var opt = document.createElement('option');
-        opt.appendChild( document.createTextNode(option_text) );
-        opt.value = device.deviceId; 
-        selector.appendChild(opt);
-    }
-}   
+    // Download devices info
+    var devices_info = [];
+    var promises = []; 
+    if (archive) promises.push(loadDevicesPromise(['deviceId', 'deviceName'], false));
+    if (nonarchvie) promises.push(loadDevicesPromise(['deviceId', 'deviceName'], true));    
+    Promise.all(promises)
+    .then(r => { 
+        for (devices of r) {      
+            if (devices.length != 0) {      
+                devices_info.push(...devices);
+            }
+        }   
+        
+        // Update selector
+        selector = document.getElementById('device-selector');
+        $('#device-selector option').remove();
+        for (device of devices_info) {            
+            var option_text = `${device['deviceName']}(${device['deviceId']})`;
+            var opt = document.createElement('option');
+            opt.appendChild( document.createTextNode(option_text) );
+            opt.value = device['deviceId']; 
+            selector.appendChild(opt);
+        }
+        })       
+}

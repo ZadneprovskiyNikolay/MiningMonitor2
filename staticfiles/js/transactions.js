@@ -1,3 +1,5 @@
+transaction_fields = ['date', 'amount'];
+
 window.addEventListener('DOMContentLoaded', onload);
 
 function onload() {
@@ -6,13 +8,42 @@ function onload() {
     .catch(function() {});      
 }
 
-function loadTransactionsPromise() {  
-    return new Promise(function (resolve, reject) {
-        $.getJSON('/transactions/transactions.json').done(function(data, textStatus, jqXHR) {             
-            resolve(data);
-        }).fail(function(jqxhr, textStatus, error) {
-            reject(error);
-        });
+function loadTransactionsPromise() {      
+    return new Promise(function(resolve, reject) { 
+        var query = { query: `
+            query {
+                transactions {    
+                    ${transaction_fields.join('\n')}
+                }
+            }
+        `};
+    
+        fetch('/graphql', { 
+            method: 'POST', 
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Accept': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'), 
+            }, 
+            body: JSON.stringify(query), 
+        })
+        .then(r => r.json())
+        .then(r => {            
+            rows = [];   
+            for (data of r['data']['transactions']) {
+                new_row = [];
+                for (field of transaction_fields) { 
+                    new_row.push(data[field]);
+                }
+                rows.push(new_row);
+            }
+            resolve(rows); 
+        })        
+        .catch(error => { 
+            console.error('Error loading transactions: ' + error);
+            reject();
+        })   
+        return;     
     })        
 }    
 
