@@ -43,14 +43,7 @@ def add_device(request):
 @require_http_methods(['GET'])
 def my_devices(request): 
     return render(request, 'my_devices.html')
-
-@login_required
-@require_http_methods(['GET'])
-def my_devices_json(request): 
-    devices = list(device_utils.get_devices(request.user.id, archive=False))
-    devices_serialized = json.dumps(devices)
-    return HttpResponse(devices_serialized, content_type='application/json')
-
+    
 @login_required
 @require_http_methods(['GET', 'POST'])
 def add_transaction_view(request):
@@ -108,13 +101,6 @@ def archive_devices(request):
 
 @login_required
 @require_http_methods(['GET'])
-def archive_devices_json(request): 
-    devices = list(device_utils.get_devices(request.user.id, archive=True))    
-    devices_serialized = json.dumps(devices)
-    return HttpResponse(devices_serialized, content_type='application/json')
-
-@login_required
-@require_http_methods(['GET'])
 def payback(request): 
     power_cost_specified = has_power_cost(request.user.id)         
     return render(request, 'payback.html', {'power_cost_specified': power_cost_specified})
@@ -135,10 +121,3 @@ def payback_json(request, device_id):
 @require_http_methods(['GET'])
 def transactions(request): 
     return render(request, 'transactions.html')
-
-@login_required
-@require_http_methods(['GET'])
-def transactions_json(request):      
-    transactions = get_transactions(user_id=request.user.id)
-    transactions_json = json.dumps(transactions, default=converter_json)    
-    return HttpResponse(transactions_json, content_type='application/json')
