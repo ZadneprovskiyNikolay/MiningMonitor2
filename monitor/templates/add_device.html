@@ -13,36 +13,34 @@
     </br>
     
     <form class="mx-5" id="form">
-        {% csrf_token %}
-
         <div class="form-group">
             <label class="bold" for="device-name">Device name</label>
-            <input type="text" class="form-control" name="device_name" id="device-name" required>
+            <input type="text" class="form-control" name="deviceName" id="device-name" required>
         </div>
 
         <div class="form-group">
             <label class="bold" for="device-price">Device price</label>
-            <input type="number" class="form-control" name="device_price" id="device-price" required>                 
+            <input type="number" class="form-control" name="buyPrice" id="device-price" required>                 
         </div>
 
         <div class="form-group">
             <label class="bold" for="power-consumption">Consumption</label>
-            <input type="number" class="form-control" name="power_consumption" id="power-consumption" required>
+            <input type="number" class="form-control" name="powerConsumption" id="power-consumption" required>
         </div>
 
         <div class="form-group">
             <label class="bold" for="additional-expenses">Additional expenses</label>
-            <input type="number" class="form-control" name="additional_expenses" id="additional-expenses" required>
+            <input type="number" class="form-control" name="additionalExpenses" id="additional-expenses" required>
         </div>
 
         <div class="form-group">
             <label class="bold" for="mining-rate">Mining rate</label>
-            <input type="number" class="form-control" name="mining_rate", id="mining-rate" required>
+            <input type="number" class="form-control" name="miningRate", id="mining-rate" required>
         </div>
 
         <div class="form-group">
             <label class="bold" for="hashrate-unit-options">Choose hashrate unit:</label>
-            <select class="form-control" name="mining_rate_unit" id="hashrate-unit-options">
+            <select class="form-control" name="miningRateUnit" id="hashrate-unit-options">
                 <option value=3>KH/s</option>
                 <option value=6>MH/s</option>
                 <option value=9>GH/s</option>             
@@ -50,8 +48,8 @@
         </div>
 
         <div class="form-check">
-            <input type="checkbox" class="form-check-input" name='is_active' id="is-active">
-            <label class="form-check-label" for="is_active">Device is working</label>
+            <input type="checkbox" class="form-check-input" name='isActive' id="is-active">
+            <label class="form-check-label" for="isActive">Device is working</label>
         </div>
 
         

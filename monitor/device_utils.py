@@ -4,33 +4,6 @@ from .device_usage import add_usage, close_last_device_usage, add_iddle_time
 import logging 
 from datetime import date, datetime, timedelta
 
-def add_device(user, device_details) -> bool: 
-    is_active = device_details['is_active']    
-    last_device_usage = None
-    
-    fields = {
-        'user': user,
-        'last_device_usage': last_device_usage, 
-        'device_name': device_details['device_name'], 
-        'expenses': float(device_details['device_price']) + \
-            float(device_details['additional_expenses']), 
-        'mining_rate': device_details['mining_rate'], 
-        'power_consumption': device_details['power_consumption'], 
-        'buy_price': device_details['device_price'], 
-        'is_active': is_active,
-    }
-            
-    new_device = Device(**fields)
-    new_device.save()
-        
-    if is_active: 
-        # Add new usage starting from now
-        usage_id = add_usage(new_device).device_usage_id        
-        new_device.last_device_usage = usage_id
-        new_device.save()
-    
-    return new_device
-
 def get_devices(user_id, archive: bool): 
     if archive:            
             ret_columns = 'device_id', 'device_name', 'expenses', 'revenue', 'buy_price', 'sell_price'

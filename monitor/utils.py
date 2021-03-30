@@ -66,32 +66,7 @@ def has_power_cost(user_id):
 def check_ownership(user_id, device_id):
     return Device.objects.filter(user_id=user_id, device_id=device_id).exists()
 
-def add_transaction(user, trans_details):
-    Transaction.objects.create(user=user, **trans_details)   
-
 def get_transactions(user_id) -> tuple[tuple[datetime.date, float]]: 
     transactions = Transaction.objects.filter(user_id=user_id).order_by('-date')
     date_amount_pairs = tuple(transaction.date_amount() for transaction in transactions)
     return date_amount_pairs 
-
-def set_maintenance_cost(user, maintenance_settings): 
-    change = maintenance_settings['maintenance_option']
-    value = maintenance_settings['value']  
-    
-    if change == 'electricity':
-        today_date = date.today()
-        value = float(value) / 1000 # $/KW/H -> $/W/H            
-        fields = { 
-            'user': user, 
-            'cost_per_watH': value, 
-            'start_date': today_date
-        }
-
-        if PowerCost.objects.filter(user=user).exists():            
-            PowerCost.objects.filter(user=user).update(end_date=today_date)
-
-        PowerCost.objects.create(**fields)
-    else: 
-        return False
-
-    return True

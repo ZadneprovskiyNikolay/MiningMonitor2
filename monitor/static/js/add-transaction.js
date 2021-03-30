@@ -12,25 +12,39 @@ window.addEventListener('DOMContentLoaded', function() {
 
 function submitFun() {
     let form = document.getElementById('form');    
-    let transaction_json = formToJSON(form);
-    if (!transaction_json) return;
+    let data = formToJSON(form);
+    if (!data) return;
 
-    // apply    
-    setCsrfToken();
-    $.ajax({
-        url: '/add-transaction/',
-        type: 'POST',
-        data: JSON.stringify(transaction_json),
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-        async: true
-    }).done(function(response) { 
-        if (response['success']) {
-            printMessage('Added transaction successfuly.');            
-        } else { 
-            printMessage('Could not add transaction.');      
-        }   
-    }).fail(function() { 
-        printMessage('Could not add transaction.');            
+    var mutation_params = createParamStringGraphql(data);
+    var mutation = {
+        query: 
+        `mutation FirstMutation {
+            createTransaction(transactionData: {${mutation_params}}) {    
+                transaction {
+                    amount
+                    date
+                }
+            }
+        }`
+    }    
+    fetch('/graphql', { 
+        method: 'POST', 
+        headers: { 
+            'Content-Type': 'application/json', 
+            'Accept': 'application/json',
+            'X-CSRFToken': Cookies.get('csrftoken'), 
+        }, 
+        body: JSON.stringify(mutation), 
     })
+    .then(r => r.json())
+    .then(r => {            
+        if (r['success']) {
+            printMessage('Added device successfuly.');      
+        } else { 
+            printMessage('Could not add device.');      
+        }   
+    })        
+    .catch(error => { 
+        printMessage('Could not add device.');    
+    })    
 }

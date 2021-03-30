@@ -185,3 +185,7 @@ LOGGING = {
         }
     },
 }
+
+GRAPHENE = {
+    'SCHEMA': 'monitor.schema.schema'
+}

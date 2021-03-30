@@ -21,11 +21,15 @@ function isEmptyOrSpaces(str) {
 
 const formToJSON = elements => [].reduce.call(elements, (data, element) => {
     if (!isEmptyOrSpaces(element.name)) {
-        if (element.type && element.type === 'checkbox') {
+        if (!element.type) { 
+            data[element.name] = element.value;    
+        } else if (element.type == 'checkbox') {
             data[element.name] = element.checked;
-         } else {
-             data[element.name] = element.value;    
-         }
+        } else if (element.type == 'number') { 
+            data[element.name] = Number(element.value);
+        } else { 
+            data[element.name] = element.value;    
+        }
     }
     return data;
 }, {});
@@ -50,4 +54,17 @@ function clearInput(inputIds) {
             }
         }
     }
+}
+
+function createParamStringGraphql(data) { 
+    var params = Object.keys(data);
+    var params_name_value = [];
+    for (param_name of params) { 
+        var param = data[param_name];           
+        if (typeof(param) == 'string') {
+            param = `"${param}"`;
+        }
+        params_name_value.push(`${param_name}: ${param}`)        
+    }
+    return params_name_value.join(', ');
 }

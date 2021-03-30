@@ -2,7 +2,7 @@ from . import device_utils
 from .models import Device
 from .services import get_work_archive, calc_payback
 from .utils import converter_json, ownership_required, has_power_cost, \
-    add_transaction, set_maintenance_cost, get_transactions
+    get_transactions
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
@@ -28,16 +28,9 @@ def index(request):
     return render(request, 'base.html')
 
 @login_required
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def add_device(request):    
-    if request.method == 'GET': 
-        return render(request, 'add_device.html')
-    elif request.method == 'POST':        
-        new_device = json.loads(request.body)
-        if device_utils.add_device(request.user, new_device):
-            return JsonResponse({'success': True})
-        else:
-            return JsonResponse({'success': False, 'message': 'Could not add device'})
+    return render(request, 'add_device.html')   
 
 @login_required
 @require_http_methods(['GET'])
@@ -45,28 +38,15 @@ def my_devices(request):
     return render(request, 'my_devices.html')
     
 @login_required
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def add_transaction_view(request):
-    if request.method == 'GET': 
-        return render(request, 'add_transaction.html')
-    elif request.method == 'POST': 
-        new_transaction = json.loads(request.body)            
-        add_transaction(request.user, new_transaction)    
-        return JsonResponse({'success': True})
-                    
+    return render(request, 'add_transaction.html')                    
 
 @login_required
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def maintenance(request):           
-    if request.method == 'GET': 
-        return render(request, 'maintenance.html')
-    elif request.method == 'POST': 
-        settings = json.loads(request.body)        
-        if set_maintenance_cost(request.user, settings):            
-            return JsonResponse({'success': True})
-        else:
-            return JsonResponse({'success': False})
-
+    return render(request, 'maintenance.html')
+   
 @ownership_required(['POST'])
 @require_http_methods(['GET', 'POST'])
 @login_required
