@@ -8,27 +8,41 @@ window.addEventListener('DOMContentLoaded', function() {
 
 function submitFun() {
     let form = document.getElementById('form');        
-    let change_json = formToJSON(form);
-    if (!change_json) return;
+    let data = formToJSON(form);
+    if (!data) return;
 
     // Submit change
-    setCsrfToken();
-    $.ajax({
-        url: '/maintenance/',
-        type: 'POST',
-        data: JSON.stringify(change_json),
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-        async: true
-    }).done(function(response) { 
-        if (response['success']) {
-            printMessage('Applied change successfuly.');            
-        } else {
-            printMessage('Couldn\'t apply change.');                
-        }
-    }).fail(function() { 
-        printMessage('Couldn\'t apply change.');            
+    var mutation_params = createParamStringGraphql(data);
+    var mutation = {
+        query:  
+        `mutation FirstMutation {
+            setPowerCost(powerCost: {${mutation_params}}) {    
+                powerCost {
+                    startDate
+                }
+            }
+        }`
+    }    
+    fetch('/graphql', { 
+        method: 'POST', 
+        headers: { 
+            'Content-Type': 'application/json', 
+            'Accept': 'application/json',
+            'X-CSRFToken': Cookies.get('csrftoken'), 
+        }, 
+        body: JSON.stringify(mutation), 
     })
+    .then(r => r.json())
+    .then(r => {            
+        if (r['success']) {
+            printMessage('Added device successfuly.');      
+        } else { 
+            printMessage('Could not add device.');      
+        }   
+    })        
+    .catch(error => { 
+        printMessage('Could not add device.');    
+    })    
 }
 
 function getChangeValue() { 

@@ -25,7 +25,7 @@ class Query(graphene.ObjectType):
     devices = graphene.List(
         DeviceType, 
         ids=graphene.List(graphene.Int), 
-        archive=graphene.Boolean()
+        archive=graphene.Boolean()        
     )
 
     transactions = graphene.List(
@@ -53,6 +53,7 @@ class DeviceData(graphene.InputObjectType):
     mining_rate = graphene.Int()
     mining_rate_unit = graphene.Int()
     is_active = graphene.Boolean()
+    is_sold = graphene.Boolean()
 
 class CreateDevice(graphene.Mutation): 
     class Arguments: 

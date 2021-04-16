@@ -2,11 +2,11 @@ var global_current_devices = {};
 
 currentDeviceFields = [
     'deviceId', 'deviceName', 'expenses', 
-    'revenue', 'buyPrice', 'isActive'
+    'revenue', 'buyPrice', 'isSold', 'isActive'
 ]
 archiveDeviceFields = [
     'deviceId', 'deviceName', 'expenses', 
-    'revenue', 'buyPrice', 'sellPrice'
+    'revenue', 'buyPrice', 'isSold', 'sellPrice'
 ]
 
 function deviceToTableRow(device) {
@@ -17,10 +17,10 @@ function deviceToTableRow(device) {
         device['revenue'], 
         device['buyPrice']
     ]        
-    if (Boolean(device['archive'])) {
-        row.push(device['sell_price']);
+    if ('isActive' in device) { 
+        row.push(device['isActive']);
     } else {
-        row.push(device['is_active']);
+        row.push(device['sellPrice']);
     }
     return row;
 }
@@ -59,7 +59,7 @@ function fillDevicesTable(devices) {
     if (devices.length == 0) {
         return;   
     }
-    var archive = devices[0]['archive'];
+    var archive = devices[0]['isSold'];
     var tableElement = document.getElementById('my-table');        
 
     generateTableHead(tableElement, archive);
